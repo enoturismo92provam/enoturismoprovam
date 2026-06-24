@@ -1,0 +1,382 @@
+<div id="app">
+<style>
+  #app{font-family:var(--font-sans);max-width:560px;margin:0 auto}
+  .screen{display:none}
+  .screen.active{display:block}
+  .btn-gold{background:#BA7517;color:#FAEEDA;border:none;border-radius:var(--border-radius-md);padding:12px 28px;font-size:15px;font-weight:500;cursor:pointer;width:100%;transition:opacity .15s}
+  .btn-gold:hover{opacity:.9}
+  .btn-gold:active{transform:scale(0.98)}
+  .btn-outline{background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 28px;font-size:15px;font-weight:500;cursor:pointer;width:100%;color:var(--color-text-primary)}
+  .btn-outline:hover{background:var(--color-background-secondary)}
+  .opt-btn{display:block;width:100%;text-align:left;padding:14px 16px;margin-bottom:10px;border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);font-size:15px;color:var(--color-text-primary);cursor:pointer;transition:border-color .15s,background .15s}
+  .opt-btn:hover{border-color:#BA7517;background:var(--color-background-secondary)}
+  .progress-track{height:4px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden;margin-bottom:24px}
+  .progress-fill{height:100%;background:#BA7517;border-radius:4px;transition:width .3s}
+  .field-label{display:block;font-size:13px;color:var(--color-text-secondary);margin-bottom:6px}
+  .req{color:#993556}
+  .err{color:#A32D2D;font-size:13px;margin-top:4px;display:none}
+  .group{margin-bottom:18px}
+  textarea.elicit-textarea{min-height:90px}
+</style>
+
+<h2 class="sr-only">Quiz de personalidade "Que Coto es tu" com 7 perguntas, resultado de perfil e formulario de participacao num passatempo</h2>
+
+<div class="screen active" id="s-intro" style="text-align:center;padding:2rem 1rem">
+  <div style="font-size:13px;letter-spacing:.5px;color:#854F0B;font-weight:500;margin-bottom:8px">FEIRA DO ALVARINHO 2026</div>
+  <h1 style="margin:0 0 12px">Que Coto es tu?</h1>
+  <p style="color:var(--color-text-secondary);margin:0 0 28px">Responde a 7 perguntas rapidas e descobre o teu perfil Coto de Mamoelas.</p>
+  <button class="btn-gold" id="btn-start">Comecar</button>
+</div>
+
+<div class="screen" id="s-quiz">
+  <div class="progress-track"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <div id="q-counter" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px"></div>
+  <h2 id="q-text" style="margin:0 0 18px"></h2>
+  <div id="q-options"></div>
+</div>
+
+<div class="screen" id="s-result" style="text-align:center;padding:1rem">
+  <div style="font-size:13px;letter-spacing:.5px;color:#854F0B;font-weight:500;margin-bottom:8px">O TEU RESULTADO</div>
+  <h1 id="r-title" style="margin:0 0 16px"></h1>
+  <p id="r-desc" style="color:var(--color-text-secondary);margin:0 0 24px;font-size:16px"></p>
+  <p style="margin:0 0 24px;font-size:15px">Revela o Coto que ha em ti — conta-nos a tua melhor memoria com o Coto de Mamoelas e habilita-te a ganhar um voucher em espumante na Feira do Alvarinho.</p>
+  <button class="btn-gold" id="btn-leave-memory" style="margin-bottom:10px">Deixar a minha memoria</button>
+  <button class="btn-outline" id="btn-retry">Repetir o quiz</button>
+</div>
+
+<div class="screen" id="s-form">
+  <h2 style="margin:0 0 18px">A tua memoria com o Coto</h2>
+
+  <div class="group">
+    <label class="field-label">Nome <span class="req">*</span></label>
+    <input type="text" id="f-nome" placeholder="O teu nome" style="width:100%">
+    <div class="err" id="err-nome">Por favor preenche o teu nome.</div>
+  </div>
+
+  <div class="group">
+    <label class="field-label">Telemovel ou email <span class="req">*</span></label>
+    <input type="text" id="f-contacto" placeholder="912 345 678 ou email@exemplo.com" style="width:100%">
+    <div class="err" id="err-contacto">Por favor indica um telemovel ou email.</div>
+  </div>
+
+  <div class="group">
+    <label class="field-label">Instagram (opcional)</label>
+    <input type="text" id="f-instagram" placeholder="@oteuperfil" style="width:100%">
+  </div>
+
+  <div class="group">
+    <label class="field-label">Confirmacao de idade <span class="req">*</span></label>
+    <div class="elicit-pills" data-name="idade" id="idade-pills">
+      <button type="button" class="opt-btn age-opt" data-value="18+" style="margin-bottom:8px">Tenho 18 anos ou mais</button>
+      <button type="button" class="opt-btn age-opt" data-value="-18" style="margin-bottom:0">Tenho menos de 18 anos</button>
+    </div>
+    <div class="err" id="err-idade">Por favor confirma a tua idade.</div>
+  </div>
+
+  <div class="group">
+    <label class="field-label">Cidade <span class="req">*</span></label>
+    <input type="text" id="f-cidade" placeholder="A tua cidade" style="width:100%">
+    <div class="err" id="err-cidade">Por favor indica a tua cidade.</div>
+  </div>
+
+  <div class="group">
+    <label class="field-label">A tua melhor memoria com o Coto de Mamoelas <span class="req">*</span></label>
+    <textarea id="f-memoria" placeholder="Conta-nos essa historia..." style="width:100%;min-height:110px"></textarea>
+    <div class="err" id="err-memoria">Por favor partilha a tua memoria.</div>
+  </div>
+
+  <div class="group" id="grupo-partilha">
+    <label class="field-label">Autorizo a Provam a partilhar esta memoria nas redes sociais <span class="req">*</span></label>
+    <div style="display:flex;gap:10px">
+      <button type="button" class="opt-btn yn-opt" data-group="partilha" data-value="Sim" style="margin-bottom:0;text-align:center">Sim</button>
+      <button type="button" class="opt-btn yn-opt" data-group="partilha" data-value="Nao" style="margin-bottom:0;text-align:center">Nao</button>
+    </div>
+    <div class="err" id="err-partilha">Por favor escolhe uma opcao.</div>
+  </div>
+
+  <div class="group" id="grupo-sorteio">
+    <label class="field-label">Quero participar no sorteio do voucher em espumante <span class="req">*</span></label>
+    <div style="display:flex;gap:10px">
+      <button type="button" class="opt-btn yn-opt" data-group="sorteio" data-value="Sim" style="margin-bottom:0;text-align:center">Sim</button>
+      <button type="button" class="opt-btn yn-opt" data-group="sorteio" data-value="Nao" style="margin-bottom:0;text-align:center">Nao</button>
+    </div>
+    <div class="err" id="err-sorteio">Por favor escolhe uma opcao.</div>
+  </div>
+
+  <div id="menor-aviso" style="display:none;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px 16px;font-size:14px;margin-bottom:18px">
+    Por motivos legais, este passatempo e exclusivo para maiores de 18 anos. Agradecemos a tua participacao no quiz! Podes ainda guardar a tua memoria, mas nao sera incluida no sorteio.
+  </div>
+
+  <button class="btn-gold" id="btn-submit" style="margin-top:8px">Submeter</button>
+  <div id="submit-status" style="text-align:center;font-size:13px;color:var(--color-text-secondary);margin-top:10px"></div>
+</div>
+
+<div class="screen" id="s-confirm" style="text-align:center;padding:2rem 1rem">
+  <div style="font-size:13px;letter-spacing:.5px;color:#854F0B;font-weight:500;margin-bottom:8px">FEIRA DO ALVARINHO 2026</div>
+  <h1 style="margin:0 0 12px">Este brinde e teu.</h1>
+  <p style="color:var(--color-text-secondary);margin:0">Obrigado por revelares o teu Coto connosco. Boa sorte no sorteio!</p>
+</div>
+</div>
+
+<script>
+(function(){
+  const QUESTIONS = [
+    {
+      text: "O teu brinde ideal acontece com...",
+      opts: [
+        {label:"Um grande grupo de amigos, sem motivo especial", pts:{Festivo:2,Improvavel:1}},
+        {label:"Alguem especial, so os dois", pts:{Romantico:2}},
+        {label:"A familia toda a mesa", pts:{Familia:2}},
+        {label:"Uma memoria antiga que voltou a cabeca", pts:{Nostalgico:2}}
+      ]
+    },
+    {
+      text: "Se a noite tomasse um rumo inesperado, tu...",
+      opts: [
+        {label:"Ja estavas a planear isso desde o inicio", pts:{Improvavel:2}},
+        {label:"Brindavas e seguias a onda, seja qual for", pts:{Festivo:2}},
+        {label:"Ligavas a alguem so para contar", pts:{Nostalgico:1,Romantico:1}},
+        {label:"Preferias ter ficado em casa com os teus", pts:{Familia:2}}
+      ]
+    },
+    {
+      text: "Se esta garrafa de Coto falasse, contava uma historia sobre...",
+      opts: [
+        {label:"Um casamento ou celebracao em grande", pts:{Festivo:1,Familia:1}},
+        {label:"Um jantar a luz de velas que ainda recordas", pts:{Romantico:2}},
+        {label:"Uma viagem que ninguem esperava que acontecesse", pts:{Improvavel:2}},
+        {label:"Uma fotografia antiga guardada numa gaveta", pts:{Nostalgico:2}}
+      ]
+    },
+    {
+      text: "Escolhe a frase que mais te define depois de um copo:",
+      opts: [
+        {label:"\u201cVamos abrir mais uma!\u201d", pts:{Festivo:2}},
+        {label:"\u201cLembras-te da ultima vez que bebemos isto?\u201d", pts:{Nostalgico:2}},
+        {label:"\u201cSo mais um, contigo\u201d", pts:{Romantico:2}},
+        {label:"\u201cEspera, como e que viemos parar aqui?\u201d", pts:{Improvavel:2}}
+      ]
+    },
+    {
+      text: "Qual destes momentos te traz mais saudade?",
+      opts: [
+        {label:"Um Natal ou aniversario em casa dos teus", pts:{Familia:2}},
+        {label:"Uma noite de verao que durou ate de madrugada", pts:{Improvavel:1,Festivo:1}},
+        {label:"O primeiro brinde com alguem que amas", pts:{Romantico:2}},
+        {label:"Uma fotografia antiga que ainda guardas", pts:{Nostalgico:2}}
+      ]
+    },
+    {
+      text: "Na mesa, costumas ser a pessoa que...",
+      opts: [
+        {label:"Propoe sempre o proximo brinde", pts:{Festivo:2}},
+        {label:"Conta a mesma historia de sempre, e todos adoram", pts:{Nostalgico:1,Familia:1}},
+        {label:"Esta mais calada, mas sente tudo intensamente", pts:{Romantico:2}},
+        {label:"Aparece com uma ideia de ultima hora", pts:{Improvavel:2}}
+      ]
+    },
+    {
+      text: "Se pudesses brindar agora, escolhias brindar a...",
+      opts: [
+        {label:"Tudo o que ainda esta para vir", pts:{Improvavel:1,Festivo:1}},
+        {label:"Quem esta sempre a mesa contigo", pts:{Familia:2}},
+        {label:"Quem faz o copo saber sempre melhor", pts:{Romantico:2}},
+        {label:"Tudo o que ja viveste até aqui", pts:{Nostalgico:2}}
+      ]
+    }
+  ];
+
+  const PROFILE_ORDER = ["Festivo","Romantico","Nostalgico","Improvavel","Familia"];
+
+  const RESULTS = {
+    Festivo: {
+      title:"Coto Festivo",
+      desc:"Es aquela pessoa que transforma qualquer momento num brinde. Onde estas tu, ha sempre uma razao para abrir mais uma garrafa."
+    },
+    Romantico: {
+      title:"Coto Romantico",
+      desc:"Para ti, o Coto sabe melhor quando ha alguem especial do outro lado do copo. Cada brinde e tambem uma promessa."
+    },
+    Nostalgico: {
+      title:"Coto Nostalgico",
+      desc:"Guardas brindes como quem guarda fotografias. Cada garrafa aberta carrega contigo uma memoria que nao esqueces."
+    },
+    Improvavel: {
+      title:"Coto Improvavel",
+      desc:"Ninguem sabe bem como a noite comeca contigo, mas acaba sempre com uma boa historia para contar no dia seguinte."
+    },
+    Familia: {
+      title:"Coto de Familia",
+      desc:"Para ti, uma garrafa aberta e quase sempre sinonimo de mesa cheia, vozes a sobrepor-se e ninguem querer ir para casa."
+    }
+  };
+
+  let currentQ = 0;
+  const scores = {Festivo:0,Romantico:0,Nostalgico:0,Improvavel:0,Familia:0};
+  let resultProfile = "";
+  let answers = {idade:null, partilha:null, sorteio:null};
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function renderQuestion(){
+    const q = QUESTIONS[currentQ];
+    document.getElementById('q-counter').textContent = 'Pergunta ' + (currentQ+1) + ' de ' + QUESTIONS.length;
+    document.getElementById('progress').style.width = Math.round(((currentQ)/QUESTIONS.length)*100) + '%';
+    document.getElementById('q-text').textContent = q.text;
+    const optsEl = document.getElementById('q-options');
+    optsEl.innerHTML = '';
+    q.opts.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = opt.label;
+      btn.addEventListener('click', ()=>{
+        for(const k in opt.pts){ scores[k]=(scores[k]||0)+opt.pts[k]; }
+        currentQ++;
+        if(currentQ < QUESTIONS.length){
+          renderQuestion();
+        } else {
+          finishQuiz();
+        }
+      });
+      optsEl.appendChild(btn);
+    });
+  }
+
+  function finishQuiz(){
+    document.getElementById('progress').style.width='100%';
+    let best = PROFILE_ORDER[0];
+    let bestScore = -Infinity;
+    PROFILE_ORDER.forEach(p=>{
+      if(scores[p] > bestScore){ bestScore = scores[p]; best = p; }
+    });
+    resultProfile = best;
+    const r = RESULTS[best];
+    document.getElementById('r-title').textContent = r.title;
+    document.getElementById('r-desc').textContent = r.desc;
+    show('s-result');
+  }
+
+  document.getElementById('btn-start').addEventListener('click', ()=>{
+    currentQ = 0;
+    PROFILE_ORDER.forEach(p=>scores[p]=0);
+    show('s-quiz');
+    renderQuestion();
+  });
+
+  document.getElementById('btn-retry').addEventListener('click', ()=>{
+    currentQ = 0;
+    PROFILE_ORDER.forEach(p=>scores[p]=0);
+    show('s-quiz');
+    renderQuestion();
+  });
+
+  document.getElementById('btn-leave-memory').addEventListener('click', ()=>{
+    show('s-form');
+  });
+
+  function wireSingleSelect(selector, onPick){
+    document.querySelectorAll(selector).forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll(selector).forEach(b=>{
+          b.style.borderColor = '';
+          b.style.background = '';
+        });
+        btn.style.borderColor = '#BA7517';
+        btn.style.background = 'var(--color-background-secondary)';
+        onPick(btn);
+      });
+    });
+  }
+
+  wireSingleSelect('.age-opt', (btn)=>{
+    answers.idade = btn.getAttribute('data-value');
+    document.getElementById('err-idade').style.display='none';
+    const menorAviso = document.getElementById('menor-aviso');
+    const grupoSorteio = document.getElementById('grupo-sorteio');
+    if(answers.idade === '-18'){
+      menorAviso.style.display='block';
+      grupoSorteio.style.display='none';
+      answers.sorteio = 'Nao';
+    } else {
+      menorAviso.style.display='none';
+      grupoSorteio.style.display='block';
+    }
+  });
+
+  document.querySelectorAll('.yn-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const group = btn.getAttribute('data-group');
+      document.querySelectorAll('.yn-opt[data-group="'+group+'"]').forEach(b=>{
+        b.style.borderColor='';
+        b.style.background='';
+      });
+      btn.style.borderColor = '#BA7517';
+      btn.style.background = 'var(--color-background-secondary)';
+      answers[group] = btn.getAttribute('data-value');
+      const errId = group === 'partilha' ? 'err-partilha' : 'err-sorteio';
+      document.getElementById(errId).style.display='none';
+    });
+  });
+
+  function validateField(id, errId, value){
+    const ok = value && value.trim().length>0;
+    document.getElementById(errId).style.display = ok ? 'none' : 'block';
+    return ok;
+  }
+
+  document.getElementById('btn-submit').addEventListener('click', async ()=>{
+    const nome = document.getElementById('f-nome').value;
+    const contacto = document.getElementById('f-contacto').value;
+    const cidade = document.getElementById('f-cidade').value;
+    const memoria = document.getElementById('f-memoria').value;
+
+    let valid = true;
+    valid = validateField('f-nome','err-nome',nome) && valid;
+    valid = validateField('f-contacto','err-contacto',contacto) && valid;
+    valid = validateField('f-cidade','err-cidade',cidade) && valid;
+    valid = validateField('f-memoria','err-memoria',memoria) && valid;
+
+    if(!answers.idade){
+      document.getElementById('err-idade').style.display='block';
+      valid = false;
+    }
+    document.getElementById('err-partilha').style.display = answers.partilha ? 'none':'block';
+    if(!answers.partilha) valid = false;
+
+    if(answers.idade === '18+'){
+      document.getElementById('err-sorteio').style.display = answers.sorteio ? 'none':'block';
+      if(!answers.sorteio) valid = false;
+    }
+
+    if(!valid) return;
+
+    const statusEl = document.getElementById('submit-status');
+    statusEl.textContent = 'A guardar...';
+
+    const record = {
+      nome: nome,
+      contacto: contacto,
+      instagram: document.getElementById('f-instagram').value || '',
+      idade: answers.idade === '18+' ? 'Tenho 18 anos ou mais' : 'Tenho menos de 18 anos',
+      cidade: cidade,
+      perfil_coto: RESULTS[resultProfile].title,
+      memoria: memoria,
+      autoriza_partilha: answers.partilha,
+      participa_sorteio: answers.sorteio,
+      timestamp: new Date().toISOString()
+    };
+
+    try{
+      const key = 'participacao:' + Date.now() + '-' + Math.random().toString(36).slice(2,8);
+      await window.storage.set(key, JSON.stringify(record), true);
+      statusEl.textContent = '';
+      show('s-confirm');
+    }catch(e){
+      statusEl.textContent = 'Nao foi possivel guardar agora. Tenta novamente.';
+    }
+  });
+})();
+</script>
